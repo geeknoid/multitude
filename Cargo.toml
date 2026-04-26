@@ -1,0 +1,148 @@
+[package]
+name = "multitude"
+version = "0.1.0"
+description = "Fast and flexible arena allocator"
+categories = ["memory-management", "data-structures"]
+keywords = ["arena", "memory", "allocator", "bump", "rc"]
+authors = ["Martin Taillefer <martin@taillefer.org>"]
+license = "MIT"
+repository = "https://github.com/geeknoid/multitude"
+documentation = "https://docs.rs/multitude"
+readme = "README.md"
+edition = "2024"
+rust-version = "1.95.0"
+
+[package.metadata.docs.rs]
+# This enables the "unstable" doc_cfg feature on docs.rs
+rustdoc-args = ["--cfg", "docsrs"]
+all-features = true
+
+[features]
+default = ["std", "builders"]
+std = []
+serde = ["dep:serde"]
+stats = []
+dst = ["dep:ptr_meta"]
+utf16 = ["dep:widestring"]
+builders = []
+
+[dependencies]
+allocator-api2 = { version = "0.4.0", default-features = false, features = ["alloc"] }
+ptr_meta = { version = "0.3.1", default-features = false, optional = true }
+serde = { version = "1.0.228", default-features = false, optional = true }
+widestring = { version = "1.2.1", default-features = false, features = ["alloc"], optional = true }
+
+# Loom is only used under `--cfg loom` for the model-checked tests.
+# `target.'cfg(loom)'` is matched by Cargo when `RUSTFLAGS="--cfg loom"` is set.
+[target.'cfg(loom)'.dependencies]
+loom = { version = "0.7.2" }
+
+[dev-dependencies]
+allocator-api2 = { version = "0.4.0", default-features = false, features = ["alloc"] }
+bumpalo = { version = "3.20.2", default-features = false, features = ["collections"] }
+criterion = { version = "0.8.2", default-features = false }
+gungraun = { version = "0.18.2" }
+hashbrown = { version = "0.17.0", default-features = false, features = ["allocator-api2"] }
+serde_json = { version = "1.0.149", default-features = false }
+
+[target.'cfg(loom)'.dev-dependencies]
+loom = { version = "0.7.2" }
+
+[[bench]]
+name = "criterion_alloc"
+harness = false
+
+[[bench]]
+name = "criterion_drop"
+harness = false
+
+[[bench]]
+name = "gungraun_alloc"
+harness = false
+
+[[bench]]
+name = "gungraun_drop"
+harness = false
+
+[lints.rust]
+ambiguous_negative_literals = "warn"
+missing_debug_implementations = "warn"
+redundant_imports = "warn"
+redundant_lifetimes = "warn"
+single_use_lifetimes = "warn"
+trivial_numeric_casts = "warn"
+unsafe_op_in_unsafe_fn = "warn"
+unused_extern_crates = "warn"
+unused_import_braces = "warn"
+unused_lifetimes = "warn"
+unused_macro_rules = "warn"
+unused_qualifications = "allow"
+unused_results = "warn"
+
+unexpected_cfgs = { level = "warn", check-cfg = ['cfg(coverage,coverage_nightly)','cfg(loom)'] }
+
+[lints.clippy]
+cargo = { level = "warn", priority = -1 }
+complexity = { level = "warn", priority = -1 }
+correctness = { level = "warn", priority = -1 }
+nursery = { level = "warn", priority = -1 }
+pedantic = { level = "warn", priority = -1 }
+perf = { level = "warn", priority = -1 }
+style = { level = "warn", priority = -1 }
+
+alloc_instead_of_core = "warn"
+allow_attributes = "warn"
+allow_attributes_without_reason = "warn"
+assertions_on_result_states = "warn"
+as_underscore = "warn"
+as_pointer_underscore = "warn"
+clone_on_ref_ptr = "warn"
+deref_by_slicing = "warn"
+disallowed_script_idents = "warn"
+empty_drop = "warn"
+empty_enum_variants_with_brackets = "warn"
+empty_structs_with_brackets = "warn"
+filetype_is_file = "warn"
+fn_to_numeric_cast_any = "warn"
+get_unwrap = "warn"
+if_then_some_else_none = "warn"
+infinite_loop = "warn"
+map_err_ignore = "warn"
+missing_asserts_for_indexing = "warn"
+multiple_unsafe_ops_per_block = "warn"
+mutex_atomic = "warn"
+mutex_integer = "warn"
+needless_raw_strings = "warn"
+panic = "warn"
+rc_buffer = "warn"
+rc_mutex = "warn"
+redundant_type_annotations = "warn"
+renamed_function_params = "warn"
+rest_pat_in_fully_bound_structs = "warn"
+return_and_then = "warn"
+semicolon_outside_block = "warn"
+std_instead_of_core = "warn"
+string_lit_chars_any = "warn"
+string_slice = "warn"
+suspicious_xor_used_as_pow = "warn"
+try_err = "warn"
+undocumented_unsafe_blocks = "warn"
+unnecessary_safety_comment = "warn"
+unnecessary_safety_doc = "warn"
+unnecessary_self_imports = "warn"
+unneeded_field_pattern = "warn"
+unused_result_ok = "warn"
+unwrap_in_result = "warn"
+unwrap_used = "warn"
+
+[[example]]
+name = "basic"
+required-features = ["builders"]
+
+[[example]]
+name = "strings"
+required-features = ["builders"]
+
+[profile.release]
+lto = "fat"
+codegen-units = 1
